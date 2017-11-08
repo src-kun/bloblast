@@ -152,7 +152,7 @@ class Exploit:
 	
 	#TODO 不存在自动创建
 	#complex 自定义的扫描策略 ,目前必须手动创建
-	NESSUS_POLICY = 'complex',#complex 
+	NESSUS_POLICY = 'complex'#complex 
 	
 	def __init__(self, exp_name = None, target = None, info = None, nesscan = None, wvs = None, bloom = None):
 		#1 外网模式
