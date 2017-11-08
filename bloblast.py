@@ -172,7 +172,7 @@ class Exploit:
 										'name':'',
 										'targets': [],
 										'description':'',
-										'policy': NESSUS_POLICY
+										'policy': self.NESSUS_POLICY
 								},
 								'floder': {
 										'id':None,
