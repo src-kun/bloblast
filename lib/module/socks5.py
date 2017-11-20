@@ -1,17 +1,24 @@
+#! usr/bin/python 
+#coding=utf-8 
+
 import socket
 import threading
 import select
 import time
+from oredis import ORedis
+import hashlib
 
+scan_host = 'Host: 192.168.5.128'
 IsNeedAuth=False
 Username='admin'
 Password='123456'
-Port=8080
+Port=8081
+ors = ORedis('192.168.5.131', 6379)
 
 def prxoy(sock, address): 
 	cs = sock  
 	DspPort=0
-	DspAddr=''	
+	DspAddr=''
 	try:
 		recv= cs.recv(512)
 		VER=recv[0:1]
@@ -52,7 +59,8 @@ def prxoy(sock, address):
 					AddrLen=ord(recv[4:5])
 					DspAddr=recv[5:5+AddrLen]
 					DspPort=256*ord(recv[5+AddrLen:5+AddrLen+1])+ord(recv[5+AddrLen+1:5+AddrLen+2])
-				else:									  #four hex number format
+				else:
+					#four hex number format
 					DspAddr=recv[4:8]
 					DspAddrr=''
 					for i in DspAddr:
@@ -69,6 +77,7 @@ def prxoy(sock, address):
 	except Exception,e:
 		print e
 
+m2 = hashlib.md5()
 def forward(cs,DspAddr,DspPort):
 	try:
 		#print DspAddr +'\n'
@@ -91,8 +100,11 @@ def forward(cs,DspAddr,DspPort):
 				if (len(recv) >0):
 					saddr,sport= ss.getpeername()
 					if sport == 80:
-						#TODO 入库保存http request
-						print recv
+						if scan_host in recv:
+							m2.update(recv)
+							ors.set(m2.hexdigest(), recv.replace('\r\n', '\\r\\n'))
+							#TODO 入库保存http request
+							print recv
 					print caddr,':',cport,'<',len(recv),'>',saddr,':',sport
 					ss.send(recv)
 					
