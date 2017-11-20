@@ -4,3 +4,4 @@ pip install pybloom
 pip install chardet
 pip install censys
 pip install tldextract
+pip install redis
