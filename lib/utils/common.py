@@ -6,6 +6,7 @@ import os
 
 import tldextract
 import urllib
+import hashlib
 
 #from lib.core.log import logger
 
@@ -65,3 +66,16 @@ def write(path = None, text = None, pattern = 'r+'):
 def input(msg):
 	str = raw_input(msg); 
 	return str
+
+def md5(text):
+	m2 = hashlib.md5()
+	m2.update(text)
+	return m2.hexdigest()
+	
+	
+	
+	
+	
+	
+	
+	

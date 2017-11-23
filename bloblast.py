@@ -277,11 +277,18 @@ class Exploit:
 #exp.application()
 
 #半自动扫描
-target = 'http://www.361sport.com/'
-info = Information(target)
+#target = 'http://www.361sport.com/'
+#info = Information(target)
 #设置手动收集到的域名
-info.set_domains(['http://test.361sport.com'])
+"""info.set_domains(['http://test.361sport.com'])
 info.set_filter('361sport.com')
 exp = Exploit(info = info)
 exp.network()
-exp.application()
+exp.application()"""
+
+#from lib.module.scan import repeater
+#repeate = Repeate('1')
+
+from moudle.proxy import socks5
+socks5.start()
+print 1

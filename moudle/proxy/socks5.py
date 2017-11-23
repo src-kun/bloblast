@@ -5,14 +5,18 @@ import socket
 import threading
 import select
 import time
-from oredis import ORedis
 import hashlib
 
-scan_host = 'Host: 192.168.5.128'
+from lib.core.log import logger
+from lib.core.oredis import ORedis
+from lib.utils import common
+
+
+scan_host = ''#'Host: api.zhicheauto.com'
 IsNeedAuth=False
 Username='admin'
 Password='123456'
-Port=8081
+Port=8098
 ors = ORedis('192.168.5.131', 6379)
 
 def prxoy(sock, address): 
@@ -25,9 +29,9 @@ def prxoy(sock, address):
 		#MethodNum=ord(recv[1:2])
 		#Methods=[]
 		#for i in range(0,MethodNum):
-		   # Methods.append(ord(recv[2+i:3+i]))
-		if(IsNeedAuth):		  #Need AUTHENICATION
-			cs.send(b'\x05\x02')	 #Reply
+		#Methods.append(ord(recv[2+i:3+i]))
+		if(IsNeedAuth):#Need AUTHENICATION
+			cs.send(b'\x05\x02')#Reply
 			recv= cs.recv(1024)
 			Ver=recv[0:1]
 			UserLen=ord(recv[1:2])
@@ -41,7 +45,7 @@ def prxoy(sock, address):
 				cs.close()
 				return 
 		else:
-			cs.send(VER+'\x00')  #  NO AUTHENICATION REQUEST
+			cs.send(VER + '\x00')#  NO AUTHENICATION REQUEST
 		try :
 			recv= cs.recv(1024)
 		except Exception,ex:
@@ -49,13 +53,13 @@ def prxoy(sock, address):
 			 return
 		CMD=ord(recv[1:2])
 		ATYP=ord(recv[3:4])
-		if(CMD ==0x01):			 # CONNECT CMD
-			if (ATYP==03):					  # DOMAINNAME
+		if(CMD ==0x01):# CONNECT CMD
+			if (ATYP==03): # DOMAINNAME
 				AddrLen=ord(recv[4:5])
 				DspPort=256*ord(recv[5+AddrLen:5+AddrLen+1])+ord(recv[1+5+AddrLen:5+AddrLen+2])
 				DspAddr=socket.gethostbyname(recv[5:5+AddrLen])
-			elif (ATYP==01):					 #IPV4
-				if (recv.count('.')==4):	# Asiic  format  split by  '.'
+			elif (ATYP==01):#IPV4
+				if (recv.count('.')==4):# Asiic  format  split by  '.'
 					AddrLen=ord(recv[4:5])
 					DspAddr=recv[5:5+AddrLen]
 					DspPort=256*ord(recv[5+AddrLen:5+AddrLen+1])+ord(recv[5+AddrLen+1:5+AddrLen+2])
@@ -70,23 +74,22 @@ def prxoy(sock, address):
 			else:
 				print "IPV6 is not support"
 				return
-			cs.send(VER+'\x00\x00\x01\x00\x00\x00\x00\x00\x00')   # REPLY
+			cs.send(VER+'\x00\x00\x01\x00\x00\x00\x00\x00\x00')# REPLY
 			forward(cs,DspAddr,DspPort)
 		else :
 			print "Don't suport  this Cmd",CMD
 	except Exception,e:
 		print e
 
-m2 = hashlib.md5()
 def forward(cs,DspAddr,DspPort):
 	try:
 		#print DspAddr +'\n'
-		ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+		ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		
 		ss.connect((DspAddr, DspPort))
 	except Exception,e:
-				print "Connect to ",DspAddr,"Fail"
-				return
+		print "Connect to ",DspAddr,"Fail"
+		return
 	socks=[]
 	socks.append(cs)
 	socks.append(ss)
@@ -101,18 +104,16 @@ def forward(cs,DspAddr,DspPort):
 					saddr,sport= ss.getpeername()
 					if sport == 80:
 						if scan_host in recv:
-							m2.update(recv)
-							ors.set(m2.hexdigest(), recv.replace('\r\n', '\\r\\n'))
-							#TODO 入库保存http request
+							#radis 数据入库点
 							print recv
+							ors.set_header(common.md5(recv), str(recv))
 					print caddr,':',cport,'<',len(recv),'>',saddr,':',sport
 					ss.send(recv)
-					
 				else:
 					for sock in socks:
 						sock.close()
 					return
-			elif s is ss:		   
+			elif s is ss:
 				recv=ss.recv(2048)
 				saddr,sport= ss.getpeername()
 				if (len(recv) >0):
@@ -124,10 +125,10 @@ def forward(cs,DspAddr,DspPort):
 						sock.close()
 					return
 	   except Exception,e:
-			print "Translate data error"
+			print "Translate data error%s"%str(e)
 			break			
 
-if __name__ == "__main__":
+def start():
 	ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	ls.bind(('0.0.0.0',Port))
 	ls.listen(500)
@@ -135,4 +136,3 @@ if __name__ == "__main__":
 		clientSock, address = ls.accept()
 		thread = threading.Thread(target=prxoy, args=(clientSock,address))
 		thread.start()
-

@@ -10,6 +10,23 @@ from lib.core.exception import BloblastDataException
 from lib.core.exception import BloblastNoneDataException
 from lib.core.log import logger
 
+def analysis_header(header):
+	header_dict = {}
+	method = header[:3]
+	url = None
+	head = header.split('\\r\\n')
+	url = 'http://' + head[1].replace('Host: ', '') + head[0].split(' ')[1]
+	for i in range(2, len(head)):
+		try:
+			header_dict.update(eval("{'" + head[i].replace(': ', '\':\'') + "'}"))
+		except ValueError:
+			#出现ValueError: dictionary update sequence element #0 has length 0; 2 is required错误，因为请求头中存在空行，忽略即可
+			pass
+		except TypeError:
+			#可能是因为提交的数据中存在二进制
+			pass
+	return (header_dict, url, method)
+
 class Request():
 
 	def __init__(self, headers = {}, context = None):
