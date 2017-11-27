@@ -20,3 +20,12 @@ class switch(object):
 			return True
 		else:
 			return False
+			
+def demo():
+	for case in switch(format):
+			if case('test'):
+				print 'test'
+				break
+			if case(): 
+				print 'default'
+				pass
