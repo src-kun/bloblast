@@ -6,50 +6,42 @@ import os
 import redis
 import pickle
 import base64
+from copy import deepcopy
 
 from lib.connection import http
 
 class ORedis:
 	
-	def __init__(self, ip, port):
+	def __init__(self, ip, port, db):
 		self.__ip = ip
 		self.__port = port
-		self.__output_handle = redis.Redis(host = self.__ip, port = self.__port, db=0)
-		self.__storage_struct = {'request':{'method':'', 'url':'', 'headers':{}, 'params':{}}, 'response':{'code': -1, 'headers':'', 'content':''}}
+		self.__db = db
+		self.__output_handle = redis.Redis(host = self.__ip, port = self.__port, db = db)
+		self.__storage_struct = {'request':{'method':'', 'url':'', 'headers':{}, 'params':{}}, 'response':{'code': -1, 'headers':'', 'content':''}, 'last_time':0}
 	
 	def get_storage_struct(self):
-		return self.__storage_struct
+		return deepcopy(self.__storage_struct)
 	
 	def __filter(self, text):
 		pass
 	
 	def set(self, key, value):
-		self.__output_handle.set(key, base64.b64encode(value))
+		self.__output_handle.set(str(key), base64.b64encode(str(value)))
 	
 	#TODO 
 	def set_header(self, key, data):
-		static_fix = ['jpg', 'css', 'js', 'png']
+		d = str(data)
+		static_fix = ['jpg', 'css', 'js', 'png', 'jif', 'swf']
 		suffix = ''
-		(header_dict, url, method) = http.analysis_header(data.replace('\r\n', '\\r\\n').replace('\"', '\\"'))
+		result = http.analysis_header(d.replace('\r\n', '\\r\\n'))
 		#TODO 优化过滤
-		if url.rfind('.') != -1:
-			suffix = url[url.rfind('.') + 1:]
-			if url.rfind('?') != -1:
-				suffix = suffix[:suffix.rfind('?')]
-		print '='*20
-		print suffix
-		
-		if not suffix or not suffix in static_fix:
+		if result and not result['suffix'] in static_fix:
 			storage_struct = self.get_storage_struct()
-			storage_struct['request']['url'] = url
-			storage_struct['request']['method'] = method
-			storage_struct['request']['headers'].update(header_dict)
-			#storage_struct['request']['headers'] = recv.replace('\r\n', '\\r\\n').replace('\"', '\\"')
+			storage_struct['request'].update(result)
 			self.__output_handle.set(key, base64.b64encode(str(storage_struct)))
-			
 	
 	def get(self, key):
-		return base64.b64decode(self.__output_handle.get(key))
+		return eval(base64.b64decode(self.__output_handle.get(key)))
 	
 	def delete(self, key):
 		self.__output_handle.delete(key)

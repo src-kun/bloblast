@@ -5,27 +5,101 @@ import urllib
 import urllib2
 import json
 
+from lib.core.base import switch
 from lib.core.exception import BloblastConnectionException
 from lib.core.exception import BloblastDataException
 from lib.core.exception import BloblastNoneDataException
 from lib.core.log import logger
 
-def analysis_header(header):
-	header_dict = {}
+
+GET = 'GET'
+POST = 'POST'
+DELETE = 'DELETE'
+PUT = 'PUT'
+PATCH = 'PATCH'
+OPTHION = 'OPTHION'
+
+CONTENT_TYPE = 'Content-Type'
+CONTENT_TYPE_JSON = 'application/json'
+
+def analysis_methon(header):
 	method = header[:3]
+	for case in switch(method.lower()):
+		if case('pos'):
+			method = POST
+		elif case('del'):
+			method = DELETE
+		elif case('pat'):
+			method = PATCH
+		elif case('opt'):
+			method = OPTHION
+	return method
+
+#解析header成字典
+def analysis_header(header):
+	result = {'headers':{}, 'url':'', 'suffix':'', 'method':'', 'params':{}}
+	method = ''
 	url = None
-	head = header.split('\\r\\n')
-	url = 'http://' + head[1].replace('Host: ', '') + head[0].split(' ')[1]
-	for i in range(2, len(head)):
+	#调试的时候使用 header.split('\n')#
+	head = header.split('\n')#('\\r\\n')
+	if len(head) == 1:
+		raise Exception("headers analysis faild: \n" + head[0])
+		
+	#提取method
+	if 'Access-Control-Request-Method' in header:
+		result['method'] = result['headers']['Access-Control-Request-Method']
+	else:
+		result['method'] = analysis_methon(header)
+	
+	for i in range(1, len(head) - 1):
 		try:
-			header_dict.update(eval("{'" + head[i].replace(': ', '\':\'') + "'}"))
-		except ValueError:
+			result['headers'].update(eval("{'" + head[i].replace(': ', '\':\'').replace('\\r\\n', '') + "'}"))
+		except ValueError, e:
 			#出现ValueError: dictionary update sequence element #0 has length 0; 2 is required错误，因为请求头中存在空行，忽略即可
+			print e,head[i]
 			pass
-		except TypeError:
+		except TypeError, e:
 			#可能是因为提交的数据中存在二进制
+			print e,head[i]
 			pass
-	return (header_dict, url, method)
+	if result['headers']:
+		#提取url 协议 + 域名 + 请求资源
+		result['url'] = 'http://' + result['headers']['Host'] + head[0][4:-9].strip(' ')
+		if result['headers'].has_key('Host'):
+			del result['headers']['Host']
+		
+		#提取参数和请求资源的类型（js/php/jsp..）
+		param = ''
+		if result['method'] == GET or result['method'] == DELETE:
+			try:
+				index = head[0][4:-9].index('?')
+				param = head[0][4:-9][index + 1:]
+				suffix = head[0][4:-9][:index].split('.')
+				if len(suffix) >= 2:
+					result['suffix'] = suffix[len(suffix) - 1]
+			except ValueError, e:
+				suffix = head[0][4:-9].split('.')
+				if len(suffix) >= 2:
+					result['suffix'] = suffix[len(suffix) - 1]
+		else:
+			param = head[len(head) - 1]
+		print '*'*20
+		print head
+		print 'method %s'%result['method']
+		print param
+		print '*'*20
+		#识别json
+		if param[0] == '{' and param[len(param) - 1] == '}':
+			result['headers'][CONTENT_TYPE] = CONTENT_TYPE_JSON
+			result['params'].update(eval(param))
+		elif '=' in param:
+			params = param.split('&')
+			for ps in params:
+				p = ps.split('=')
+				result['params'][p[0]] = p[1]
+		else:
+			result['params'][param] = ''
+		return result
 
 class Request():
 
@@ -62,8 +136,8 @@ class Request():
 				logger.error(errMsg)
 				#logger.exception("Exception Logged");
 		return response"""
-		
-	def get(self, url):
+	
+	def get(self, url, data = None):
 		response = self.connect(url, lamb = 'GET')
 		if response:
 			if response.code == 200:
@@ -109,7 +183,8 @@ class Request():
 		self.__accept(url)
 		response = None
 		data = None
-		if self.headers.has_key('Content-Type') and not cmp(self.headers['Content-Type'], 'application/json') and values:
+		#JSON 请求
+		if values and self.headers.has_key('Content-Type') and not cmp(self.headers['Content-Type'], 'application/json'):
 			data = json.dumps(values)
 		elif values:
 			data = urllib.urlencode(values)
@@ -144,7 +219,7 @@ class Request():
 				logger.info(url + " %d "%response.code)
 		return response
 		
-	def delete(self, url):
+	def delete(self, url, data = None):
 		response = self.connect(url, lamb = 'DELETE')
 		if response:
 			if response.code == 200:
@@ -153,7 +228,7 @@ class Request():
 				logger.info(url + " %d "%response.code)
 		return response
 		
-	def patch(self, url, values):
+	def patch(self, url, values = None):
 		response = self.connect(url, values = values, lamb = 'PATCH')
 		if response:
 			if response.code == 200:
