@@ -19,6 +19,7 @@ PUT = 'PUT'
 PATCH = 'PATCH'
 OPTHION = 'OPTHION'
 
+CONTENT_LENGTH = 'Content-Length'
 CONTENT_TYPE = 'Content-Type'
 CONTENT_TYPE_JSON = 'application/json'
 
@@ -41,7 +42,7 @@ def analysis_header(header):
 	method = ''
 	url = None
 	#调试的时候使用 header.split('\n')#
-	head = header.split('\n')#('\\r\\n')
+	head = header.split('\\r\\n')
 	if len(head) == 1:
 		raise Exception("headers analysis faild: \n" + head[0])
 		
@@ -89,9 +90,10 @@ def analysis_header(header):
 		print param
 		print '*'*20
 		#识别json
-		if param[0] == '{' and param[len(param) - 1] == '}':
+		if param and param[0] == '{' and param[len(param) - 1] == '}':
 			result['headers'][CONTENT_TYPE] = CONTENT_TYPE_JSON
 			result['params'].update(eval(param))
+			param = eval(param)
 		elif '=' in param:
 			params = param.split('&')
 			for ps in params:
@@ -99,6 +101,9 @@ def analysis_header(header):
 				result['params'][p[0]] = p[1]
 		else:
 			result['params'][param] = ''
+			
+		#设置Content-length
+		result['headers'][CONTENT_LENGTH] = len(str(param))
 		return result
 
 class Request():
