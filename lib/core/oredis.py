@@ -31,7 +31,7 @@ class ORedis:
 	#TODO 
 	def set_header(self, key, data):
 		d = str(data)
-		static_fix = ['jpg', 'css', 'js', 'png', 'jif', 'swf']
+		static_fix = ['jpg', 'css', 'js', 'png', 'gif', 'swf']
 		suffix = ''
 		result = http.analysis_header(d.replace('\r\n', '\\r\\n'))
 		#TODO 优化过滤

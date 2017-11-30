@@ -23,6 +23,8 @@ CONTENT_LENGTH = 'Content-Length'
 CONTENT_TYPE = 'Content-Type'
 CONTENT_TYPE_JSON = 'application/json'
 
+ACCEPT_ENCODING = 'Accept-Encoding'
+
 def analysis_methon(header):
 	method = header[:3]
 	for case in switch(method.lower()):
@@ -42,7 +44,7 @@ def analysis_header(header):
 	method = ''
 	url = None
 	#调试的时候使用 header.split('\n')#
-	head = header.split('\\r\\n')
+	head = header.split('\n')#('\\r\\n')
 	if len(head) == 1:
 		raise Exception("headers analysis faild: \n" + head[0])
 		
@@ -84,11 +86,7 @@ def analysis_header(header):
 					result['suffix'] = suffix[len(suffix) - 1]
 		else:
 			param = head[len(head) - 1]
-		print '*'*20
-		print head
-		print 'method %s'%result['method']
-		print param
-		print '*'*20
+
 		#识别json
 		if param and param[0] == '{' and param[len(param) - 1] == '}':
 			result['headers'][CONTENT_TYPE] = CONTENT_TYPE_JSON
@@ -98,12 +96,20 @@ def analysis_header(header):
 			params = param.split('&')
 			for ps in params:
 				p = ps.split('=')
-				result['params'][p[0]] = p[1]
+				if len(p) == 2:
+					result['params'][p[0]] = p[1]
 		else:
 			result['params'][param] = ''
-			
+		
 		#设置Content-length
-		result['headers'][CONTENT_LENGTH] = len(str(param))
+		if result['headers'].has_key(CONTENT_LENGTH):
+			result['headers'][CONTENT_LENGTH] = len(str(param))
+		
+		if result['headers'].has_key(ACCEPT_ENCODING):
+			del result['headers'][ACCEPT_ENCODING]
+		print '*'*50
+		print result
+		print '*'*50
 		return result
 
 class Request():

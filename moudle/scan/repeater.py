@@ -14,15 +14,18 @@ sql_redis_handle = ORedis(request_redis['ip'], request_redis['port'], db = 1)
 
 class Repeate:
 	
-	def __init__(self, header):
+	def __init__(self, header, params):
 		self.__header = header
+		self.__params = params
 	
 	def get_header(self):
 		return self.__header
 	
 	#重放请求
 	def replay(self):
-		method = getattr(http.Request(self.__header['headers']), self.__header['method'].lower())
+		req = http.Request(self.__header['headers'])
+		req.timeout = self.__params['timeout']
+		method = getattr(req, self.__header['method'].lower())
 		return method(self.__header['url'], self.__header['params'])
 
 		def test(self):
@@ -30,20 +33,23 @@ class Repeate:
 		#print self.__redis_handle.iteritems()
 		#print self.__redis_handle.empty()
 
-class Base(object):
+class Sql:
 	
 	def __init__(self):
-		self.__responses = []
+		self.__params = {}
+		self.__params['timeout'] = 10
 		#redis 句柄
 	
-	#控制数据流入对外提供的接口，具体的漏洞测试模板覆写这个接口
 	def inflow(self):
-		return headers
-	
+		return redis_handle.iteritems()
+		
+	def outflow(self, header):
+		redis_handle.set(header.keys()[0], header.values()[0])
+
 	def test(self):
 		headers = self.inflow()
 		for header in headers:
-			response = Repeate(header.values()[0]['request']).replay()
+			response = Repeate(header.values()[0]['request'], self.__params).replay()
 			if response:
 				#print '='*20
 				#print response.headers
@@ -54,26 +60,7 @@ class Base(object):
 			else:
 				#TODO 访问失败处理
 				pass
-	
-	#控制数据流出对外提供的接口，具体的漏洞测试模板覆写这个接口
-	def outflow(self, header):
-		pass
 
-class Sql(Base):
-	
-	def inflow(self):
-		return redis_handle.iteritems()
-		
-	def outflow(self, header):
-		print header
-		sql_redis_handle.set(header.keys()[0], header.values()[0])
-			
-	def main(self):
-		
-		test()
-			
-			
-			
 			
 			
 			

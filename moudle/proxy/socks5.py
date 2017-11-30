@@ -16,7 +16,7 @@ scan_host = ''#'Host: api.zhicheauto.com'
 IsNeedAuth=False
 Username='admin'
 Password='123456'
-Port=8068
+Port=8065
 ors = ORedis('192.168.5.131', 6379, 0)
 
 def prxoy(sock, address): 
