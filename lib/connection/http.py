@@ -22,8 +22,17 @@ OPTHION = 'OPTHION'
 CONTENT_LENGTH = 'Content-Length'
 CONTENT_TYPE = 'Content-Type'
 CONTENT_TYPE_JSON = 'application/json'
+CONTENT_TYPE_JAVASCRIPT = 'application/javascript'
+CONTENT_TYPE_IMAGE = 'image'
 
 ACCEPT_ENCODING = 'Accept-Encoding'
+
+IF_NONE_MATCH = 'If-None-Match'
+
+HEADER_SPLIT_STR = '\r\n'
+#测试时用
+#HEADER_SPLIT_STR = '\n'
+
 
 def analysis_methon(header):
 	method = header[:3]
@@ -39,12 +48,12 @@ def analysis_methon(header):
 	return method
 
 #解析header成字典
-def analysis_header(header):
+def analysis_request(header):
 	result = {'headers':{}, 'url':'', 'suffix':'', 'method':'', 'params':{}}
 	method = ''
 	url = None
 	#调试的时候使用 header.split('\n')#
-	head = header.split('\n')#('\\r\\n')
+	head = header.split(HEADER_SPLIT_STR)
 	if len(head) == 1:
 		raise Exception("headers analysis faild: \n" + head[0])
 		
@@ -56,7 +65,7 @@ def analysis_header(header):
 	
 	for i in range(1, len(head) - 1):
 		try:
-			result['headers'].update(eval("{'" + head[i].replace(': ', '\':\'').replace('\\r\\n', '') + "'}"))
+			result['headers'].update(eval("{'" + head[i].replace(': ', '\':\'').replace('\r\n', '') + "'}"))
 		except ValueError, e:
 			#出现ValueError: dictionary update sequence element #0 has length 0; 2 is required错误，因为请求头中存在空行，忽略即可
 			print e,head[i]
@@ -107,11 +116,29 @@ def analysis_header(header):
 		
 		if result['headers'].has_key(ACCEPT_ENCODING):
 			del result['headers'][ACCEPT_ENCODING]
+		
+		if result['headers'].has_key(IF_NONE_MATCH):
+			del result['headers'][IF_NONE_MATCH]
+		
 		print '*'*50
 		print result
 		print '*'*50
 		return result
 
+#TODO 提取出content
+def analysis_response(header):
+	result = {'headers':{}, 'code':-1}
+	index = 0
+	head = header.split(HEADER_SPLIT_STR)
+	if 'HTTP/' in head[0]:
+		result['code'] = int(head[0][9:13])
+		index = 1
+	for i in range(index, len(head) - 1):
+		if not head[i]:
+			break
+		result['headers'].update(eval("{'" + head[i].replace(': ', '\':\'').replace('\\r\\n', '') + "'}"))
+	return result
+	
 class Request():
 
 	def __init__(self, headers = {}, context = None):

@@ -289,6 +289,5 @@ exp.application()"""
 #from lib.module.scan import repeater
 #repeate = Repeate('1')
 
-from moudle.proxy import socks5
-socks5.start()
-print 1
+from moudle.lurkscan import proxys
+proxys.start()

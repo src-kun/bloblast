@@ -8,7 +8,7 @@ import time
 import hashlib
 
 from lib.core.log import logger
-from lib.core.oredis import ORedis
+from moudle.lurkscan.redis import ScanRedis
 from lib.utils import common
 
 
@@ -16,8 +16,8 @@ scan_host = ''#'Host: api.zhicheauto.com'
 IsNeedAuth=False
 Username='admin'
 Password='123456'
-Port=8065
-ors = ORedis('192.168.5.131', 6379, 0)
+Port=8082
+ors = ScanRedis('192.168.5.131', 6379, 0)
 
 def prxoy(sock, address): 
 	cs = sock  
@@ -100,9 +100,9 @@ def forward(cs,DspAddr,DspPort):
 					saddr,sport= ss.getpeername()
 					if sport == 80:
 						if scan_host in recv:
-							#radis 数据入库点
+							#radis request数据入库点
 							print recv
-							ors.set_header(common.md5(recv), recv)
+							ors.set_request(common.md5(recv), recv)
 					print caddr,':',cport,'<',len(recv),'>',saddr,':',sport
 					ss.send(recv)
 				else:

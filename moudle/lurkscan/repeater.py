@@ -4,13 +4,13 @@
 import attr
 
 from lib.connection import http
-from lib.core.oredis import ORedis
+from moudle.lurkscan.redis import ScanRedis
 from lib.utils import common
 
 response_redis = {'ip':'192.168.5.131', 'port':8888}
 request_redis = {'ip':'192.168.5.131', 'port':6379}
-redis_handle = ORedis(request_redis['ip'], request_redis['port'], db = 0)
-sql_redis_handle = ORedis(request_redis['ip'], request_redis['port'], db = 1)
+redis_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 0)
+sql_redis_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 1)
 
 class Repeate:
 	
@@ -44,7 +44,7 @@ class Sql:
 		return redis_handle.iteritems()
 		
 	def outflow(self, header):
-		redis_handle.set(header.keys()[0], header.values()[0])
+		redis_handle.set_response(header.keys()[0], header.values()[0])
 
 	def test(self):
 		headers = self.inflow()
@@ -53,14 +53,11 @@ class Sql:
 			if response:
 				#print '='*20
 				#print response.headers
-				header.values()[0]['response']['headers'] = str(response.headers)
-				header.values()[0]['response']['content'] = str(response.read())
-				header.values()[0]['response']['code'] = response.code
-				self.outflow(header)
+				#set_response(self, key, value, content = None, code = None):
+				redis_handle.set_response(header.keys()[0], str(response.headers), str(response.read()), response.code)
 			else:
 				#TODO 访问失败处理
 				pass
-
 			
 			
 			

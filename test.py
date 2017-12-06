@@ -4,15 +4,13 @@
 import sys
 import os
 
-from moudle.proxy import socks5
-#socks5.start()
-
-from moudle.scan.repeater import Repeate
-from moudle.scan.repeater import Sql
-from lib.core.oredis import ORedis
-from lib.connection.http import analysis_header
+from moudle.lurkscan.repeater import Repeate
+from moudle.lurkscan.repeater import Sql
+from moudle.lurkscan.redis import ScanRedis
+from lib.connection.http import analysis_request
+from lib.connection.http import analysis_response
 from lib.connection import http
-ors = ORedis('192.168.5.131', 6379, 0)
+ors = ScanRedis('192.168.5.131', 6379, 0)
 headers = ors.iteritems()
 for header in headers:
 	print header.values()[0]
@@ -46,22 +44,44 @@ print response.read()"""
 sql = Sql()
 #sql.test()
 #ors.empty()
-data = """GET /vulnerabilities/sqli/?id=2%20AND%20(SELECT%204084%20FROM(SELECT%20COUNT(*)%2CCONCAT(0x7178716271%2C(SELECT%20(ELT(4084%3D4084%2C1)))%2C0x7176766a71%2CFLOOR(RAND(0)*2))x%20FROM%20INFORMATION_SCHEMA.PLUGINS%20GROUP%20BY%20x)a)--%20nrrX&Submit=Submit HTTP/1.1
-Host: 192.168.5.139
+data = """GET /metadatas?name=xianghao&system=tboss HTTP/1.1
+Host: api.zhicheauto.com
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:57.0) Gecko/20100101 Firefox/57.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept: application/json, text/javascript, */*; q=0.01
 Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
 Accept-Encoding: gzip, deflate
-Cookie: PHPSESSID=i7of6l1iftja32obue0lljlg80; security=low
-Connection: close
-Upgrade-Insecure-Requests: 1
+Referer: http://api.zhicheauto.com/doc.html
+Authorization: Token c494cb535d69a8918f12df08d19fbdbf
+X-Requested-With: XMLHttpRequest
+Cookie: token=c494cb535d69a8918f12df08d19fbdbf
+Connection: close"""
 
-"""
-"""header = analysis_header(data)
+
+"""header = analysis_request(data)
 print header['headers']
 req = http.Request(header['headers'])
 #http://192.168.5.132:8111
 print header['url']
-response = req.post(header['url'], header['params'])
+response = req.get(header['url'], header['params'])
 print response.headers
-print response.read()"""
+print response.read()
+#ors.set_request('2', data)"""
+
+
+
+data = """HTTP/1.1 200 OK
+Date: Mon, 04 Dec 2017 09:28:40 GMT
+Server: Apache/2.4.29 (Debian)
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Vary: Accept-Encoding
+Content-Length: 161
+Connection: close
+Content-Type: imagse
+
+test
+"""
+
+#print analysis_response(data)
+#ors.set_response('2', data)
