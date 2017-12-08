@@ -5,7 +5,6 @@ import sys
 import os
 
 from moudle.lurkscan.repeater import Repeate
-from moudle.lurkscan.repeater import Sql
 from moudle.lurkscan.redis import ScanRedis
 from lib.connection.http import analysis_request
 from lib.connection.http import analysis_response
@@ -13,7 +12,7 @@ from lib.connection import http
 ors = ScanRedis('192.168.5.131', 6379, 0)
 headers = ors.iteritems()
 for header in headers:
-	print header.values()[0]
+	#print header.values()[0]
 	pass
 #ors.empty()
 data = """POST /users HTTP/1.1
@@ -41,9 +40,6 @@ repeate = Repeate(ors.get('1')['request'])
 response = repeate.replay()
 print response.read()"""
 #repeate.test()
-sql = Sql()
-#sql.test()
-#ors.empty()
 data = """GET /metadatas?name=xianghao&system=tboss HTTP/1.1
 Host: api.zhicheauto.com
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:57.0) Gecko/20100101 Firefox/57.0
@@ -65,8 +61,10 @@ print header['url']
 response = req.get(header['url'], header['params'])
 print response.headers
 print response.read()
-#ors.set_request('2', data)"""
 
+#ors.set_request('2', data)"""
+#req = http.Request({})
+#print req.combination_params({'pass':'p','user':'u'})
 
 
 data = """HTTP/1.1 200 OK
@@ -85,3 +83,17 @@ test
 
 #print analysis_response(data)
 #ors.set_response('2', data)
+
+from moudle.lurkscan import scan
+scan.start()
+
+
+
+
+
+
+
+
+
+
+
