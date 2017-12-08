@@ -24,6 +24,9 @@ class ScanRedis(ORedis):
 	def _filter(self, text):
 		pass
 	
+	def set(self, key, value):
+		self._output_handle.set(key, base64.b64encode(str(value)))
+	
 	def set_response(self, key, value, content = None, code = None):
 		result = http.analysis_response(value)
 		#过滤非执行脚本
@@ -36,7 +39,7 @@ class ScanRedis(ORedis):
 				data['response']['code'] = result['code']
 			data['response']['content'] = content
 			data['response']['raw'] = value
-			self._output_handle.set(str(key), base64.b64encode(str(data)))
+			self.set(key, data)
 		else:
 			#删除无用请求
 			pass
@@ -52,8 +55,8 @@ class ScanRedis(ORedis):
 			storage_struct = self.get_storage_struct()
 			storage_struct['request'].update(result)
 			storage_struct['request']['raw'] = header
-			self._output_handle.set(key, base64.b64encode(str(storage_struct)))
-	
+			self.set(key, storage_struct)
+		
 	def get(self, key):
 		return eval(base64.b64decode(self._output_handle.get(key)))
 	

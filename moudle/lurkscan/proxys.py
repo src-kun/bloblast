@@ -16,7 +16,7 @@ scan_host = ''#'Host: api.zhicheauto.com'
 IsNeedAuth=False
 Username='admin'
 Password='123456'
-Port=8082
+Port=8087
 ors = ScanRedis('192.168.5.131', 6379, 0)
 
 def prxoy(sock, address): 
