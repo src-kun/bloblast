@@ -75,10 +75,6 @@ def analysis_request(header):
 			print e,head[i]
 			pass
 	if result['headers']:
-		#提取url 协议 + 域名 + 请求资源
-		result['url'] = 'http://' + result['headers']['Host'] + head[0][4:-9].strip(' ')
-		if result['headers'].has_key('Host'):
-			del result['headers']['Host']
 		
 		#提取参数和请求资源的类型（js/php/jsp..）
 		param = ''
@@ -96,6 +92,12 @@ def analysis_request(header):
 		else:
 			param = head[len(head) - 1]
 
+		#提取url 协议 + 域名 + 请求资源
+		#TODO 协议类型
+		result['url'] = 'http://' + result['headers']['Host'] + head[0][4:-9].strip(' ').replace('?' + param, '')
+		if result['headers'].has_key('Host'):
+			del result['headers']['Host']
+		
 		#识别json
 		if param and param[0] == '{' and param[len(param) - 1] == '}':
 			result['headers'][CONTENT_TYPE] = CONTENT_TYPE_JSON
@@ -107,6 +109,8 @@ def analysis_request(header):
 				p = ps.split('=')
 				if len(p) == 2:
 					result['params'][p[0]] = p[1]
+		elif not param:
+			result['params'] = {}
 		else:
 			result['params'][param] = ''
 		
@@ -175,8 +179,28 @@ class Request():
 				#logger.exception("Exception Logged");
 		return response"""
 	
+	@staticmethod
+	def combination_params(params):
+		result = ''
+		for key in params:
+			result += "%s=%s&"%(key, params[key])
+		return result[:-1]
+	
 	def get(self, url, data = None):
-		response = self.connect(url, lamb = 'GET')
+		if data:
+			url += '?' + Request.combination_params(data)
+		response = self.connect(url, lamb = 'GET', values = data)
+		if response:
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			else:
+				logger.info(url + " %d "%response.code)
+		return response
+	
+	def delete(self, url, data = None):
+		if data:
+			url += '?' + self.combination_params(data)
+		response = self.connect(url, lamb = 'DELETE')
 		if response:
 			if response.code == 200:
 				logger.info(url + " 200 ok")
@@ -208,14 +232,6 @@ class Request():
 				logger.error(errMsg)
 			#logger.exception("Exception Logged");
 		return response"""
-	def post(self, url, values = None):
-		response = self.connect(url, values = values, lamb = 'POST')
-		if response:
-			if response.code == 200:
-				logger.info(url + " 200 ok")
-			else:
-				logger.info(url + " %d "%response.code)
-		return response
 
 	def connect(self, url, lamb, values = None):
 		self.__accept(url)
@@ -248,8 +264,8 @@ class Request():
 			#logger.exception("Exception Logged");
 		return response
 
-	def put(self, url, values):
-		response = self.connect(url, values = values, lamb = 'PUT')
+	def post(self, url, values = None):
+		response = self.connect(url, values = values, lamb = 'POST')
 		if response:
 			if response.code == 200:
 				logger.info(url + " 200 ok")
@@ -257,8 +273,8 @@ class Request():
 				logger.info(url + " %d "%response.code)
 		return response
 		
-	def delete(self, url, data = None):
-		response = self.connect(url, lamb = 'DELETE')
+	def put(self, url, values):
+		response = self.connect(url, values = values, lamb = 'PUT')
 		if response:
 			if response.code == 200:
 				logger.info(url + " 200 ok")
