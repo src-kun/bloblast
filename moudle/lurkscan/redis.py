@@ -78,6 +78,9 @@ class ScanRedis(ORedis):
 		for key in self._output_handle.scan_iter():
 			self._output_handle.delete(key)
 	
+	def exists(self, key):
+		return self._output_handle.exists(key)
+	
 	def close(self):
 		self._output_handle.close()
 #ors = ORedis('192.168.5.131', 6379)
