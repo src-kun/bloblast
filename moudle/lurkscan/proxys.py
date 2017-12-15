@@ -12,7 +12,7 @@ from moudle.lurkscan.redis import ScanRedis
 from lib.utils import common
 
 
-scan_host = ''#'Host: api.zhicheauto.com'
+scan_host = ''
 IsNeedAuth=False
 Username='admin'
 Password='123456'
