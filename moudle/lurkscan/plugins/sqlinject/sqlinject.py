@@ -16,7 +16,7 @@ from lib.utils.common import md5
 request_redis = {'ip':'192.168.5.131', 'port':6379}
 result_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 15)
 
-SQLINJECT_TARGET = 'SQL_INJECT'
+SQLINJECT_TARGET = 'SQL_INJECT_'
 
 class InjectEntity():
 	
@@ -80,7 +80,7 @@ class SqlInject():
 		param = ''
 		for key in params:
 			param += key
-		return md5(url + param)
+		return SQLINJECT_TARGET + md5(url + param)
 	
 	#设置超时
 	def get_timeout(self):
