@@ -180,16 +180,14 @@ class Request():
 		return response"""
 	
 	@staticmethod
-	def combination_params(params):
-		result = ''
-		for key in params:
-			result += "%s=%s&"%(key, params[key])
-		return result[:-1]
+	def urlencode(data):
+		return urllib.urlencode(data).replace('+','%20')
 	
 	def get(self, url, data = None):
-		if data:
-			url += '?' + Request.combination_params(data)
-		response = self.connect(url, lamb = 'GET', values = data)
+		values = Request.urlencode(data)
+		if values:
+			url += '?' + values
+		response = self.connect(url, lamb = 'GET')
 		if response:
 			if response.code == 200:
 				logger.info(url + " 200 ok")
@@ -198,8 +196,9 @@ class Request():
 		return response
 	
 	def delete(self, url, data = None):
-		if data:
-			url += '?' + self.combination_params(data)
+		values = Request.urlencode(data)
+		if values:
+			url += '?' + values
 		response = self.connect(url, lamb = 'DELETE')
 		if response:
 			if response.code == 200:
@@ -215,7 +214,7 @@ class Request():
 		if not cmp(self.headers['Content-Type'], 'application/json'):
 			data = json.dumps(values)
 		elif values:
-			data = urllib.urlencode(values)
+			data = Request.urlencode(values)
 		try:
 			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
 			request.get_method = lambda: lamb
@@ -241,7 +240,10 @@ class Request():
 		if values and self.headers.has_key('Content-Type') and not cmp(self.headers['Content-Type'], 'application/json'):
 			data = json.dumps(values)
 		elif values:
-			data = urllib.urlencode(values)
+			data = Request.urlencode(values)
+			print data
+			data = Request.urlencode(values)
+			print data
 		try:
 			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
 			request.get_method = lambda: lamb
