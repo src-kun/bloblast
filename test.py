@@ -21,15 +21,20 @@ for header in headers:
 #print(filename)
 #请求存储->取出->转发 测试代码
 def test_repeate():
-	data = """GET /test/vulnerabilities/sqli_blind/?id=1%27%20AND%20SLEEP(5)%20AND%20%27TgYR%27%3d%27TgYR&Submit=Submit HTTP/1.1
-Host: 192.168.5.139
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:57.0) Gecko/20100101 Firefox/57.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	data = """POST /test/vulnerabilities/xss_s/ HTTP/1.1
+Accept-Encoding: identity
+Content-Length: 45
 Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
-Accept-Encoding: gzip, deflate
-Cookie: PHPSESSID=j5a9os8qcoprv41hfj5kptkm61; security=low
 Connection: close
-Upgrade-Insecure-Requests: 1"""
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Upgrade-Insecure-Requests: 1
+Host: 192.168.5.139
+Referer: http://192.168.5.139/test/vulnerabilities/xss_s/
+Cookie: security=low; PHPSESSID=c314v7e1ua1pdkms9qefsr4gq4
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:57.0) Gecko/20100101 Firefox/57.0
+Content-Type: application/x-www-form-urlencoded
+
+btnSign=Sign%2BGuestbook&mtxMessage=4"><img src=x>&txtName=4"""
 	ors.set_request('1', data)
 	print ors.get('1')['request']
 	#(self, url, params, method, headers = {}, timeout = 5):
@@ -37,9 +42,9 @@ Upgrade-Insecure-Requests: 1"""
 	print request['params']
 	repeate = Repeate(request['url'], request['params'], request['method'], request['headers'])
 	response = repeate.replay()
-	#print response.read()
+	print response.read()
 
-
+#test_repeate()
 """header = analysis_request(data)
 print header['headers']
 req = http.Request(header['headers'])
@@ -74,8 +79,14 @@ test
 from moudle.lurkscan import scan
 scan.start()
 res = ScanRedis('192.168.5.131', 6379, 15)
-for r in res.iteritems():
-	print r
+
+for vulns in res.iteritems():
+	for key in vulns:
+		print vulns[key]['request']['url']
+		print vulns[key]['request']['params']
+		print vulns[key]['vuln']
+		print vulns[key]['response']['code']
+		print vulns[key]
 res.empty()
 
 
