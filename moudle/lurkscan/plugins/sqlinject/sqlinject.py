@@ -2,6 +2,8 @@
 #coding=utf-8 
 
 import os
+
+import urllib
 from copy import deepcopy
 from datetime import datetime
 
@@ -108,7 +110,7 @@ class SqlInject():
 					if response:
 						inject.content = response.read()
 						if self._check(inject):
-							vuln_url = header.values()[0]['request']['url'] + Request.combination_params(head_tmp['request']['params'])
+							vuln_url = header.values()[0]['request']['url'] + Request.urlencode(head_tmp['request']['params'])
 							print '*'*80
 							print 'url : %s sql inject'%vuln_url
 							print head_tmp['request']['params']
