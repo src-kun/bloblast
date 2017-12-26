@@ -57,19 +57,14 @@ class SqlInject():
 		result = []
 		self._payloads = self._load_payloads()
 		#有参数
-		if inject.params:
-			for key in inject.params:
-				if not inject.exp_req['params'].has_key(key):
-					inject.exp_req['params'][key] = []
-				for payload in self._payloads:
-					tmp = deepcopy(inject.params)
-					tmp[key] += payload
-					inject.exp_req['params'][key].append(tmp)
-		else:
-			#生成urlpayload
-			#TODO 识别url链接中的变量、伪静态链接等
+		for key in inject.params:
+			if not inject.exp_req['params'].has_key(key):
+				inject.exp_req['params'][key] = []
 			for payload in self._payloads:
-				inject.exp_req['urls'].append(inject.url + payload)
+				tmp = deepcopy(inject.params)
+				tmp[key] += payload
+				inject.exp_req['params'][key].append(tmp)
+
 		return inject
 	
 	#检测是否为注入
