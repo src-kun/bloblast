@@ -21,10 +21,13 @@ FUZZING_TARGET = 'FUZZING_'
 
 class TestEntity():
 	
-	def __init__(self, title, payload, errors, describe = ''):
+	def __init__(self, key, payload, title = '', errors = '', describe = ''):
+		self.key = key
 		self.payload = payload
 		self.errors = errors
+		#漏洞名称
 		self.title = title
+		#漏洞描述
 		self.describe = describe
 
 class FuzzingEntity():
@@ -36,6 +39,7 @@ class FuzzingEntity():
 		self.params = request['params']
 		self.method = request['method']
 		self.content = ''
+		self.code = -1
 		self.tety = tety
 	
 class Fuzzing():
@@ -50,18 +54,13 @@ class Fuzzing():
 	#初始化攻击请求
 	def _initialization_request(self, request):
 		result = []
-		#有参数
-		for key in request['params']:
-			for tety in self._tetys:
-				req_tmp = deepcopy(request)
-				req_tmp['params'][key] += tety.payload
-				result.append(FuzzingEntity(req_tmp, tety))
-		
 		#生成urlpayload
-		#TODO 识别url链接中的变量、伪静态链接等
 		for tety in self._tetys:
 			req_tmp = deepcopy(request)
-			req_tmp['url'] += tety.payload
+			if req_tmp['url'][-1] == '/':
+				req_tmp['url'] = req_tmp['url'][:-1] + tety.payload
+			else:
+				req_tmp['url'] += tety.payload
 			result.append(FuzzingEntity(req_tmp, tety))
 		return result
 	
@@ -86,9 +85,6 @@ class Fuzzing():
 		self._tetys = self._load_payloads()
 		for header in headers:
 			key = Fuzzing.get_key(header.values()[0]['request']['url'], header.values()[0]['request']['params'])
-			#防止一个url的name相同而value不同二次注入检测的发生
-			if result_handle.exists(key):
-				continue
 			fzetys = self._initialization_request(header.values()[0]['request'])
 			for fzety in fzetys:
 				response = Repeate(url = fzety.url, 
@@ -98,11 +94,13 @@ class Fuzzing():
 									timeout = self.get_timeout()).replay()
 				if response:
 					fzety.content = response.read()
+					fzety.code = response.code
 					if self._check(fzety):
 						result = deepcopy(header.values()[0])
-						poc = header.values()[0]['request']['url'] + Request.urlencode(fzety.params)
+						poc = fzety.url
 						print '*'*80
 						print 'fuzzing : %s %s '%(fzety.tety.title ,poc)
+						print 'method : %s params: %s '%(fzety.method, Request.urlencode(fzety.params))
 						print 'describe: %s'%(fzety.tety.describe)
 						print fzety.params
 						result['request'] = fzety.request
@@ -113,7 +111,6 @@ class Fuzzing():
 						result['response']['raw'] = str(response.headers)
 						result['vuln'] = self.__class__.__name__
 						result_handle.set(key, result)
-						break
 				else:
 					pass
 			

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+
+	<res key = 'e16dd901b936f2b9a9ac9531af0f1eb2' response_code = '404'>
+		<uri payload='/wp/' />
+		<uri payload='/wordpress/' />
+		<uri payload='/drupal/' />
+		<uri payload='/cms/' />
+		<uri payload='/blog/' />
+		<uri payload='/admin/' />
+		<uri payload='/admin' />
+		<uri payload='/login' />
+		<uri payload='/.htaccess' />
+		<uri payload='/robots.txt' />
+		<uri payload='/README' />
+		<uri payload='/index.htm' />
+		<uri payload='/index.html' />
+		<uri payload='/index.php' />
+		<uri payload='/index.asp' />
+		<uri payload='/index.jsp' />
+		<uri payload='/index.aspx' />
+		<uri payload='/cgi-bin/' />
+		<uri payload='/private/' />
+		<uri payload='/private/' />
+	</res>
+</root>
+
