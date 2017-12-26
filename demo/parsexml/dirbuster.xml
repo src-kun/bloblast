@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+
+	<dir value="comment">
+		<uri text='/phpMyAdmin/' />
+		<uri text='/wp/' />
+		<uri text='/wordpress/' />
+		<uri text='/drupal/' />
+		<uri text='/cms/' />
+		<uri text='/blog/' />
+		<uri text='/admin/' />
+		<uri text='/admin' />
+		<uri text='/login' />
+		<uri text='/.htaccess' />
+		<uri text='/robots.txt' />
+		<uri text='/README' />
+		<uri text='/index.htm' />
+		<uri text='/index.html' />
+		<uri text='/index.php' />
+		<uri text='/index.asp' />
+		<uri text='/index.jsp' />
+		<uri text='/index.aspx' />
+		<uri text='/cgi-bin/' />
+		<uri text='/private/' />
+	</dir>
+</root>
+
