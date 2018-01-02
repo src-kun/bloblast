@@ -7,7 +7,6 @@ from copy import deepcopy
 from moudle.lurkscan.pluginmanager import Check
 from moudle.lurkscan.plugins.sqlinject.sqlinject import SqlInject
 from moudle.lurkscan.plugins.xss.xss import Xss
-
 class Reflection(Xss, Check):
 	
 	def __init__(self):

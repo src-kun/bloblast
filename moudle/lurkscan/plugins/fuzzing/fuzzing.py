@@ -12,7 +12,10 @@ from moudle.lurkscan.redis import ScanRedis
 from lib.connection.http import Request
 from lib.connection.http import analysis_response
 from lib.utils.common import md5
-from moudle.lurkscan.plugins.fuzzing.template import *
+from moudle.lurkscan.settings import FUZZING
+
+if FUZZING:
+	from moudle.lurkscan.plugins.fuzzing.template import *
 
 FUZZING_TARGET = 'FUZZING_'
 
@@ -58,6 +61,7 @@ class Fuzzing():
 				req_tmp['url'] = req_tmp['url'][:-1] + tety.payload
 			else:
 				req_tmp['url'] += tety.payload
+			req_tmp['params'] = {}
 			result.append(FuzzingEntity(req_tmp, tety))
 		return result
 	

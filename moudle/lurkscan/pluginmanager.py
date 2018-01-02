@@ -14,6 +14,7 @@ from moudle.lurkscan.settings import REDIS_PORT
 from moudle.lurkscan.settings import URL_REPERTORY
 from moudle.lurkscan.settings import VULN_REPERTORY
 
+
 class PluginManager(type):
 	#静态变量配置插件路径
 	__PluginPath = os.path.split(os.path.realpath(__file__))[0] + '/plugins'

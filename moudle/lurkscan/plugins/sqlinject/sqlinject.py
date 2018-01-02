@@ -13,6 +13,7 @@ from moudle.lurkscan.redis import ScanRedis
 from lib.connection.http import Request
 from lib.connection.http import analysis_response
 from lib.utils.common import md5
+from moudle.lurkscan.settings import SQLINJECT
 
 SQLINJECT_TARGET = 'SQL_INJECT_'
 
@@ -120,7 +121,9 @@ class SqlInject():
 									params = head_tmp['request']['params'], 
 									method = head_tmp['request']['method'], 
 									headers = head_tmp['request']['headers']).replay()
-from moudle.lurkscan.plugins.sqlinject.template import *
+									
+if SQLINJECT:
+	from moudle.lurkscan.plugins.sqlinject.template import *
 
 
 

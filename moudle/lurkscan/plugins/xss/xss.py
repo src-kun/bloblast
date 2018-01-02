@@ -7,10 +7,13 @@ import urllib
 from datetime import datetime
 from moudle.lurkscan.repeater import Repeate
 from moudle.lurkscan.redis import ScanRedis
-from moudle.lurkscan.plugins.xss.template import *
 from lib.connection.http import Request
 from lib.connection.http import analysis_response
 from lib.utils.common import md5
+from moudle.lurkscan.settings import XSS
+
+if XSS:
+	from moudle.lurkscan.plugins.xss.template import *
 
 XSS_TARGET = 'XSS_'
 
