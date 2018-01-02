@@ -14,9 +14,6 @@ from lib.connection.http import analysis_response
 from lib.utils.common import md5
 from moudle.lurkscan.plugins.fuzzing.template import *
 
-request_redis = {'ip':'192.168.5.131', 'port':6379}
-result_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 15)
-
 FUZZING_TARGET = 'FUZZING_'
 
 class TestEntity():
@@ -80,8 +77,7 @@ class Fuzzing():
 	def get_timeout(self):
 		return 5
 	
-	def start(self):
-		headers = self.redis_handle.iteritems()
+	def start(self, headers):
 		self._tetys = self._load_payloads()
 		for header in headers:
 			key = Fuzzing.get_key(header.values()[0]['request']['url'], header.values()[0]['request']['params'])
@@ -110,7 +106,7 @@ class Fuzzing():
 						result['response']['headers'] = analysis_response(str(response.headers))['headers']
 						result['response']['raw'] = str(response.headers)
 						result['vuln'] = self.__class__.__name__
-						result_handle.set(key, result)
+						self.result_handle.set(key, result)
 				else:
 					pass
 			

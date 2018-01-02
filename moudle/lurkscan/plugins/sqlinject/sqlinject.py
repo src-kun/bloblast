@@ -15,9 +15,6 @@ from lib.connection.http import Request
 from lib.connection.http import analysis_response
 from lib.utils.common import md5
 
-request_redis = {'ip':'192.168.5.131', 'port':6379}
-result_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 15)
-
 SQLINJECT_TARGET = 'SQL_INJECT_'
 
 class InjectEntity():
@@ -83,13 +80,12 @@ class SqlInject():
 	def get_timeout(self):
 		return 5
 	
-	def start(self):
-		headers = self.redis_handle.iteritems()
+	def start(self, headers):
 		for header in headers:
 			head_tmp = deepcopy(header.values()[0])
 			key = SqlInject.get_key(header.values()[0]['request']['url'], head_tmp['request']['params'])
 			#防止一个url的name相同而value不同二次注入检测的发生
-			if result_handle.exists(key):
+			if self.result_handle.exists(key):
 				continue
 			inject = InjectEntity(header.values()[0]['request']['url'], header.values()[0]['request']['params'], header.values()[0]['request']['headers'])
 			exp_inject = self._initialization_request(inject)
@@ -115,7 +111,7 @@ class SqlInject():
 							head_tmp['response']['headers'] = analysis_response(str(response.headers))['headers']
 							head_tmp['response']['raw'] = str(response.headers)
 							head_tmp['vuln'] = self.__class__.__name__
-							result_handle.set(key, head_tmp)
+							self.result_handle.set(key, head_tmp)
 							break
 					else:
 						pass

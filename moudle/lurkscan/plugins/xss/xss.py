@@ -12,9 +12,6 @@ from lib.connection.http import Request
 from lib.connection.http import analysis_response
 from lib.utils.common import md5
 
-request_redis = {'ip':'192.168.5.131', 'port':6379}
-result_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 15)
-
 XSS_TARGET = 'XSS_'
 
 class XssEntity():
@@ -70,13 +67,12 @@ class Xss():
 	def get_timeout(self):
 		return 5
 	
-	def start(self):
-		headers = self.redis_handle.iteritems()
+	def start(self, headers):
 		self._payloads = self._load_payloads()
 		for header in headers:
 			key = Xss.get_key(header.values()[0]['request']['url'], header.values()[0]['request']['params'])
 			#防止一个url的name相同而value不同二次注入检测的发生
-			if result_handle.exists(key):
+			if self.result_handle.exists(key):
 				continue
 			xssetyary = self._initialization_request(header.values()[0]['request'])
 			for xssety in xssetyary:
@@ -100,7 +96,7 @@ class Xss():
 						result['response']['headers'] = analysis_response(str(response.headers))['headers']
 						result['response']['raw'] = str(response.headers)
 						result['vuln'] = self.__class__.__name__
-						result_handle.set(key, result)
+						self.result_handle.set(key, result)
 						break
 				else:
 					pass

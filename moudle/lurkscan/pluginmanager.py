@@ -9,6 +9,10 @@ from imp import load_module
 
 from lib.utils.common import current_path
 from moudle.lurkscan.redis import ScanRedis
+from moudle.lurkscan.settings import REDIS_IP
+from moudle.lurkscan.settings import REDIS_PORT
+from moudle.lurkscan.settings import URL_REPERTORY
+from moudle.lurkscan.settings import VULN_REPERTORY
 
 class PluginManager(type):
 	#静态变量配置插件路径
@@ -114,14 +118,16 @@ class ScanSettings:
 		
 class Check(object):
 	__metaclass__ = PluginManager
-	request_redis = {'ip':'192.168.5.131', 'port':6379}
-	redis_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 0)
+	result_handle = ScanRedis(REDIS_IP, REDIS_PORT, db = VULN_REPERTORY)
 	
 	def __init__(self):
 		pass
 	
 	#反射调用接口
 	def start(self):
+		pass
+	
+	def output(self):
 		pass
 
 __ALLMODEL__ = (Check, Demo)
