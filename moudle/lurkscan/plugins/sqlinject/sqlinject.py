@@ -10,7 +10,6 @@ from datetime import datetime
 from moudle.lurkscan.pluginmanager import Check
 from moudle.lurkscan.repeater import Repeate
 from moudle.lurkscan.redis import ScanRedis
-from moudle.lurkscan.plugins.sqlinject.template import *
 from lib.connection.http import Request
 from lib.connection.http import analysis_response
 from lib.utils.common import md5
@@ -121,7 +120,7 @@ class SqlInject():
 									params = head_tmp['request']['params'], 
 									method = head_tmp['request']['method'], 
 									headers = head_tmp['request']['headers']).replay()
-
+from moudle.lurkscan.plugins.sqlinject.template import *
 
 
 
