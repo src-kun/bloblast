@@ -13,8 +13,7 @@ from moudle.lurkscan.settings import URL_REPERTORY
 from moudle.lurkscan.settings import VULN_REPERTORY
 
 
-request_redis = {'ip':'192.168.5.131', 'port':6379}
-redis_handle = ScanRedis(request_redis['ip'], request_redis['port'], db = 0)
+redis_handle = ScanRedis(REDIS_IP, REDIS_PORT, db = URL_REPERTORY)
 
 #循环一遍所有请求获取到正常response
 #TODO多线程
@@ -31,7 +30,6 @@ def start():
 	#repeater()
 	#加载所有插件
 	PluginManager.LoadAllPlugin()
-	redis_handle = ScanRedis(REDIS_IP, REDIS_PORT, db = URL_REPERTORY)
 	headers = redis_handle.iteritems()
 	#TODO 多线程
 	#遍历所有插件
