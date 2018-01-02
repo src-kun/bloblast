@@ -88,7 +88,7 @@ class Xss():
 					xssety.content = response.read()
 					if self._check(xssety):
 						result = deepcopy(header.values()[0])
-						poc = header.values()[0]['request']['url'] + Request.urlencode(xssety.params)
+						poc = header.values()[0]['request']['url'] + '?' + Request.urlencode(xssety.params)
 						print '*'*80
 						print 'url : %s xss inject'%poc
 						print xssety.params 
