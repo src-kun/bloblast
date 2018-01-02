@@ -9,7 +9,12 @@ from moudle.lurkscan.redis import ScanRedis
 from lib.connection.http import analysis_request
 from lib.connection.http import analysis_response
 from lib.connection import http
-ors = ScanRedis('192.168.5.131', 6379, 0)
+
+from moudle.lurkscan.settings import REDIS_IP
+from moudle.lurkscan.settings import REDIS_PORT
+from moudle.lurkscan.settings import URL_REPERTORY
+from moudle.lurkscan.settings import VULN_REPERTORY
+ors = ScanRedis(REDIS_IP, REDIS_PORT, URL_REPERTORY)
 headers = ors.iteritems()
 for header in headers:
 	#print header
@@ -78,7 +83,7 @@ test
 
 from moudle.lurkscan import scan
 scan.start()
-res = ScanRedis('192.168.5.131', 6379, 15)
+res = ScanRedis(REDIS_IP, REDIS_PORT, VULN_REPERTORY)
 
 for vulns in res.iteritems():
 	for key in vulns:
