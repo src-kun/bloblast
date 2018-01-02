@@ -1,0 +1,6 @@
+#启动redis 后台运行修改配置文件 daemonize 为 yes
+redis-server /etc/redis.conf
+#关闭redis
+redis-cli -h 127.0.0.1 -p 6379 shutdown
+#数据备份和恢复
+http://www.runoob.com/redis/redis-backup.html
