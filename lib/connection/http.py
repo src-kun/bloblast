@@ -181,7 +181,8 @@ class Request():
 	
 	@staticmethod
 	def urlencode(data):
-		return urllib.urlencode(data).replace('+','%20')
+		if data:
+			return urllib.urlencode(data).replace('+','%20')
 	
 	def get(self, url, data = None):
 		values = Request.urlencode(data)
@@ -241,9 +242,6 @@ class Request():
 			data = json.dumps(values)
 		elif values:
 			data = Request.urlencode(values)
-			print data
-			data = Request.urlencode(values)
-			print data
 		try:
 			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
 			request.get_method = lambda: lamb
