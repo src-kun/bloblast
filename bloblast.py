@@ -289,6 +289,10 @@ exp.application()"""
 #from lib.module.scan import repeater
 #repeate = Repeate('1')
 
-from moudle.lurkscan import proxys
-proxys.start()
+
+wvs = WvsScan(api_key = wvs_api_key, base_url = wvs_base_url)
+wvs.set_targets(["https://baidu.com"])
+wvs.scan()
+wvs.set_group("test")
+wvs.add_targets_to_group()
 
